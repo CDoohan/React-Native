@@ -1,2 +1,4 @@
 # React-Native
 React-Native Course by Coursera/Hong Kong University of Science and Technology
+
+json-server --watch db.json -p 3001 -d 2000 --host 172.16.1.197
