@@ -44,9 +44,6 @@ function RenderItem(props){
                     <Text style={{ margin:10 }}>
                         { item.description }
                     </Text>    
-                    <Text>
-                        { baseUrl + item.image }
-                    </Text>
                 </Card>
             )
         }

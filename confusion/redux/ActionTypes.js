@@ -6,6 +6,7 @@ export const DISHES_FAILED = 'DISHES_FAILED';
 // Comments Actions
 export const ADD_COMMENTS = 'ADD_COMMENTS';
 export const COMMENTS_FAILED = 'COMMENTS_FAILED';
+export const ADD_COMMENT = 'ADD_COMMENT';
 
 // Leaders Actions
 export const LEADERS_LOADING = 'LEADERS_LOADING';
