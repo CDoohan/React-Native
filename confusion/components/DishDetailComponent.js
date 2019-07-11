@@ -66,11 +66,22 @@ function RenderDish(props) {
             return false;
     };
 
+    handleViewRef = (ref) => {
+        this.view = ref;
+    }
+
     const panResponder = PanResponder.create({
         // starts when the user start gesture on the screen
         onStartShouldSetPanResponder: (e, gestureState) => {
             console.log('STARTS');
             return true
+        },
+        // called when the PanResponder starts recognizing and it has been garanted the permission to responde to the pan
+        onPanResponderGrant: () => {
+          this.view.rubberBand(1000)
+            .then((endState) => {
+                console.log('Endstate', endState.finished ? ' finished' : ' cancelled')
+            })  
         },
         // Invoke when the user lifts their finger off the screen after performing the gesture
         onPanResponderEnd: (e, gestureState) => {
@@ -92,7 +103,7 @@ function RenderDish(props) {
 
     if (dish!= null){
         return(
-            <Animatable.View animation="fadeInDown" duration={2000} delay={1000} {...panResponder.panHandlers}>
+            <Animatable.View animation="fadeInDown" duration={2000} delay={1000} ref={this.handleViewRef} {...panResponder.panHandlers}>
                 <Card
                     featuredTitle={dish.name}
                     image={{ uri: baseUrl + dish.image }}
