@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import { Text, View, ScrollView, StyleSheet, Picker, Switch, Button, Modal, Alert } from 'react-native';
 import DatePicker from 'react-native-datepicker';
 import * as Animatable from 'react-native-animatable';
-import { Permissions, Notifications } from 'expo';
+import { Calendar, Permissions, Notifications } from 'expo';
 
 class Reservation extends Component{
     constructor(props){
@@ -42,20 +42,6 @@ class Reservation extends Component{
         return today = yyyy + '-' + mm + '-' + dd;
     }
 
-    _handleReservation() {
-        Alert.alert(
-            'Your reservation is ok?',
-            'Number of Guests:'+ this.state.guests + '\n' + 
-            'Smoking? :' + (this.state.smoking ? 'Yes' : 'No') + '\n' +
-            'Date and time :'+ this.state.date,
-            [
-                { text: 'Cancel', onPress: () => { this.presentLocalNotification(this.state.date); this.resetForm() }, style: 'cancel'},
-                { text: 'Ok', onPress : () => this.toggleModal(), style: 'default'}
-            ],
-            { cancelable: false } 
-        )
-    }
-
     async obtainNotificationPermission() {
         let permission = await Permissions.getAsync(Permissions.NOTIFICATIONS);
         if (permission.status !== 'granted') {
@@ -65,6 +51,17 @@ class Reservation extends Component{
             }
         }
         Notifications.addListener(this.handleNotification);
+        return permission;
+    }
+
+    async obtainCalendarPermission() {
+        let permission = await Permissions.getAsync(Permissions.CALENDAR);
+        if (permission.status !== 'granted') {
+            permission = await Permissions.askAsync(Permissions.CALENDAR);
+            if (permission.status !== 'granted') {
+                Alert.alert('Permission not granted to access the calendar');
+            }
+        }
         return permission;
     }
 
@@ -88,6 +85,43 @@ class Reservation extends Component{
 
     handleNotification() {
         console.log('Listener OK');
+    }
+
+    async addReservationToCalendar(date) {
+        await this.obtainCalendarPermission();
+        const startDate = new Date(Date.parse(date));
+        const endDate = new Date(Date.parse(date) + (2 * 60 * 60 * 1000));
+        Calendar.createEventAsync(
+            Calendar.DEFAULT,
+            {
+                title: 'Con Fusion Table Reservation',
+                location: '121, Clear Water Bay Road, Clear Water Bay, Kowloon, Hong Kong',
+                startDate,
+                endDate,
+                timeZone: 'Asia/Hong_Kong',
+            },
+        );
+        Alert.alert('Reservation has been added to your calendar');
+    }
+
+    _handleReservation() {
+        Alert.alert(
+            'Your reservation is ok?',
+            'Number of Guests:'+ this.state.guests + '\n' + 
+            'Smoking? :' + (this.state.smoking ? 'Yes' : 'No') + '\n' +
+            'Date and time :'+ this.state.date,
+            [
+                { text: 'Cancel', onPress: () => { this.resetForm() }, style: 'cancel'},
+                { text: 'Ok', onPress : () => this.confirmReservation(this.state.date), style: 'default'}
+            ],
+            { cancelable: false } 
+        )
+    }
+
+    confirmReservation(date) {
+        this.presentLocalNotification(date);
+        this.addReservationToCalendar(date);
+        this.resetForm();
     }
 
     render(){
@@ -158,7 +192,7 @@ class Reservation extends Component{
                     </View>
 
                     <View style={styles.formRow}>
-                        <Button title='Reserve' color='#512DA8' onPress={ () => this.presentLocalNotification(this.state.date) } accessibilityLabel='Learn more about this puple button' />
+                        <Button title='Reserve' color='#512DA8' onPress={ () => this._handleReservation(this.state.date) } accessibilityLabel='Learn more about this puple button' />
                     </View>
                 </Animatable.View>
 

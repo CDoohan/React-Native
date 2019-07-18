@@ -126,19 +126,20 @@ class RegisterTab extends Component {
     };
 
     processImage = async (imageUri ) => {
-        let processImage = await ImageManipulator.manipulate(
-            imageUri,
-            [
-                {
-                    resize : { width: 400 }
-                }
-            ],
-            { format : 'png' }
-        );
-
-        this.setState({
-            imageUrl : processImage.url
-        });
+        try {
+            const processedImage = await ImageManipulator.manipulateAsync(
+                imageUri,
+                [
+                    { resize: { width: 400 } },
+                ],
+                { format: 'png' },
+            );
+        
+            this.setState({ imageUrl: processedImage.uri });
+        }
+        catch (error) {
+            console.log(error);
+        }
     }
 
     getImageFromCamera = async () => {
@@ -156,6 +157,23 @@ class RegisterTab extends Component {
                 this.processImage( capturedImage.uri );
             }
         }
+    }
+
+    getImageFromGallery = async () => {
+        const cameraRollPermission = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+
+        if (cameraRollPermission.status === 'granted') {
+            const libraryImage = await ImagePicker.launchImageLibraryAsync({
+                    allowsEditing: true,
+                    aspect: [4, 3],
+                    mediaTypes: 'Images',
+            });
+
+            if (!libraryImage.cancelled) {
+                this.processImage(libraryImage.uri);
+            }
+        }
+
     }
 
     handleRegister() {
@@ -186,6 +204,10 @@ class RegisterTab extends Component {
                         <Button 
                             title='Camera'
                             onPress={this.getImageFromCamera}
+                        />
+                        <Button 
+                            title='Gallery'
+                            onPress={this.getImageFromGallery}
                         />
                     </View>
 
@@ -268,7 +290,10 @@ const styles = StyleSheet.create({
     imageContainer: {
         flex: 1,
         flexDirection: 'row',
-        margin: 20
+        margin: 20,
+        justifyContent: 'space-around',
+        alignItems: 'center',
+        alignContent: 'center'
     },
     image: {
         margin:10,
