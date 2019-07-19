@@ -2,4 +2,8 @@ Necessario ter o json-server instalado na máquina, após isso:
 
 json-server --watch db.json -p 3001 -d 2000 --host IPV4
 
+*Para acessar o IPV4 da sua máquina:
+1-) CMD
+2-) ipconfig /all
+
 *O celular deve estar conectado ao mesmo IPV4 que a máquina.
